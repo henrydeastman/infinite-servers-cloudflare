@@ -14,15 +14,17 @@ Data: D1 (SQLite) for server state/history, KV for config + auth tokens.
 ## Dev commands
 
 ```bash
-# Frontend dev server (proxies /status, /servers etc. to localhost:8000)
+# Frontend dev server (proxies API paths to API_TARGET, default http://localhost:8000)
 npm ci && npm run dev
 
-# Worker dev server (separate terminal)
+# Worker dev server (separate terminal, default port 8787)
 cd worker && npm install && npx wrangler dev
 
 # Worker typecheck only
 cd worker && npm run typecheck
 ```
+
+- Set `API_TARGET` to override the dev proxy backend (e.g. `API_TARGET=http://localhost:8787 npm run dev`).
 
 ## Build & deploy
 
@@ -36,6 +38,8 @@ cd worker && npx wrangler deploy
 # Deploy frontend to Pages
 npx wrangler pages deploy dist --project-name=infinite-servers-dashboard
 ```
+
+- `VITE_ASSET_BASE=/` changes asset paths from `/dist/assets/` to `/` — required for Pages/GitHub builds.
 
 > **Dashboard-only deployment?** See `docs/dashboard-deployment.md` for a CLI-free setup via Cloudflare Dashboard.
 

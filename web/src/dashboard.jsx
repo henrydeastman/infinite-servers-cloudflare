@@ -282,17 +282,21 @@ function usePref(key, def) {
 /* ---------- live data hook ---------- */
 function useFleet(authed) {
   const [servers, setServers] = useState(null);
+  const [connError, setConnError] = useState(false);
   useEffect(() => {
-    if (!authed) { setServers(null); return; }
+    if (!authed) { setServers(null); setConnError(false); return; }
     let info = {};
     let statusMap = {};
     const prevNet = {};
-    const rebuild = () => setServers(buildServers(info, statusMap, prevNet));
+    const rebuild = () => { setServers(buildServers(info, statusMap, prevNet)); };
     fetchInfo().then((i) => { info = i || {}; rebuild(); }).catch(() => rebuild());
-    const unsub = subscribeStatus((st) => { statusMap = st || {}; rebuild(); });
+    const unsub = subscribeStatus(
+      (st) => { statusMap = st || {}; setConnError(false); rebuild(); },
+      (e) => { if (e && e.message === "connection_lost") setConnError(true); },
+    );
     return () => unsub && unsub();
   }, [authed]);
-  return servers;
+  return [servers, connError];
 }
 
 function BootSplash() {
@@ -357,7 +361,7 @@ function App() {
   const [activeTags, setActiveTags] = useState([]);
   const [authed, setAuthed] = useState(isLoggedIn());
 
-  const servers = useFleet(authed);
+  const [servers, connError] = useFleet(authed);
 
   // distinct tags in first-seen order, with counts
   const allTags = useMemo(() => {
@@ -425,6 +429,11 @@ function App() {
       </AppBar>
 
       <main className="wrap">
+        {connError && (
+          <div className="conn-error">
+            {t("error.connectionLost") || "Connection lost — Worker unreachable. Retrying..."}
+          </div>
+        )}
         <div className="page-head">
           <div>
             <h1>{t("dash.title")}</h1>

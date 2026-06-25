@@ -287,3 +287,16 @@ h1 { font-size: 27px; font-weight: 600; letter-spacing: -0.02em; }
 .login-box button:hover { opacity: 0.85; }
 .login-box button:disabled { opacity: 0.5; cursor: not-allowed; }
 .login-error { color: var(--down); font-size: 13px; margin-top: 10px; }
+
+/* ---------- CONNECTION ERROR BANNER ---------- */
+.conn-error {
+  background: color-mix(in oklch, var(--down), transparent 90%);
+  border: 1px solid color-mix(in oklch, var(--down), transparent 60%);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--down);
+  text-align: center;
+}

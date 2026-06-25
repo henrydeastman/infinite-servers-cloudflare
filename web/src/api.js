@@ -264,15 +264,51 @@ export async function setPurchaseDate(name, purchaseDate) {
  * Subscribe to live status. Uses SSE when the backend advertises it,
  * otherwise polls. Calls onStatus(statusMap) on every update.
  * Returns an unsubscribe function.
+ *
+ * Includes exponential backoff on consecutive failures and a circuit
+ * breaker that stops polling after MAX_FAILURES to avoid flooding the
+ * console/network when the Worker is unreachable.
  */
+const POLL_BASE_MS = 5000;
+const POLL_MAX_MS = 60000;
+const MAX_FAILURES = 10;
+
 export function subscribeStatus(onStatus, onError) {
   let stopped = false;
-  const tick = async () => {
-    try { onStatus(await fetchStatus()); } catch (e) { onError && onError(e); }
+  let failures = 0;
+  let timer = null;
+
+  const scheduleNext = (delayMs) => {
+    if (stopped) return;
+    timer = setTimeout(tick, delayMs);
   };
+
+  const tick = async () => {
+    if (stopped) return;
+    try {
+      const st = await fetchStatus();
+      if (stopped) return;
+      failures = 0;
+      onStatus(st);
+      scheduleNext(POLL_BASE_MS);
+    } catch (e) {
+      if (stopped) return;
+      failures++;
+      onError && onError(e);
+      if (failures >= MAX_FAILURES) {
+        onError && onError(new Error("connection_lost"));
+        return;
+      }
+      const delay = Math.min(POLL_BASE_MS * Math.pow(2, failures - 1), POLL_MAX_MS);
+      scheduleNext(delay);
+    }
+  };
+
   tick();
-  const id = setInterval(tick, 5000);
-  return () => { stopped = true; clearInterval(id); };
+  return () => {
+    stopped = true;
+    if (timer) { clearTimeout(timer); timer = null; }
+  };
 }
 
 /* ---------- detail: history time series ---------- */
