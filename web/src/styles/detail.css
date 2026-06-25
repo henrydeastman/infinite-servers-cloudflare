@@ -241,10 +241,11 @@
 .eb-grid {
   display: grid;
   grid-template-columns: repeat(45, 1fr);
-  gap: 3px;
+  gap: 2px;
 }
 .eb-cell {
-  width: 14px; height: 14px; border-radius: 3px; display: inline-block;
+  aspect-ratio: 1;
+  border-radius: 2px; display: block;
 }
 .eb-red { background: #e74c3c; opacity: 0.85; }
 .eb-green { background: #27ae60; }

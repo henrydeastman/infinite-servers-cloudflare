@@ -35,7 +35,7 @@ gen_token() {
 # ── prompt for config ────────────────────────────────────────────────────
 NAME="${AGENT_NAME:-}"
 [ -n "$NAME" ] || prompt NAME "Server name (must match dashboard config)" "$(hostname)"
-NAME="${NAME//[^a-zA-Z0-9_-]/}"
+NAME="${NAME//[^a-zA-Z0-9 _-]/}"
 
 URL="${DASHBOARD_URL:-}"; TOKEN="${AGENT_TOKEN:-}"; INTERVAL="${AGENT_INTERVAL:-}"
 [ -n "$URL" ] || prompt URL "Dashboard URL (e.g. https://infinite-servers.xxx.workers.dev)" ""
@@ -138,7 +138,9 @@ collect_info() {
     now=$(date +%s)
 
     # Build form data
-    local data="name=${NAME}&token=${TOKEN}&time=${now}"
+    local enc_name
+    enc_name=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$NAME'))" 2>/dev/null || echo "$NAME")
+    local data="name=${enc_name}&token=${TOKEN}&time=${now}"
     data+="&cpuinfo[model]=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$cpu_model'''))" 2>/dev/null || echo "$cpu_model")"
     data+="&cpuinfo[num]=${cpu_num}"
     data+="&meminfo[memTotal]=${mem_total}"
@@ -179,7 +181,9 @@ push_info() {
         distname="Unknown"
     fi
 
-    local data="name=${NAME}&token=${TOKEN}"
+    local enc_name
+    enc_name=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$NAME'))" 2>/dev/null || echo "$NAME")
+    local data="name=${enc_name}&token=${TOKEN}"
     data+="&cpuinfo[model]=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$cpu_model'''))" 2>/dev/null || echo "$cpu_model")"
     data+="&cpuinfo[num]=${cpu_num}"
     data+="&meminfo[memTotal]=${mem_total}"
@@ -229,7 +233,7 @@ else
 fi
 
 # ── setup systemd service ────────────────────────────────────────────────
-SERVICE_NAME="infinite-agent-${NAME}"
+SERVICE_NAME="infinite-agent-${NAME// /-}"
 if command -v systemctl >/dev/null 2>&1; then
     cat > /etc/systemd/system/${SERVICE_NAME}.service <<EOF
 [Unit]
