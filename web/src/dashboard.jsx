@@ -315,11 +315,13 @@ function ExpiryAlert({ servers }) {
                 ? (t("expiry.today") || "今天到期")
                 : (t("expiry.daysLeft", { n: diffDays }) || `还有${diffDays}天到期`);
             return (
-              <a key={s.name} className="expiry-alert-item" href={detailHref(s.name)}>
-                <span className="dot" style={{ background: STATUS[s.status]?.color || "var(--faint)" }} />
-                <span className="flag">{s.flag}</span>
-                <span className="expiry-alert-name">{s.name}</span>
-                <span className="expiry-alert-exp" style={{ color }}>{label}</span>
+              <a key={s.name} className="rowcard anim-rise" href={detailHref(s.name)}>
+                <div className="rc-ident">
+                  <span className="dot" style={{ background: STATUS[s.status]?.color || "var(--faint)" }} />
+                  <span className="flag">{s.flag}</span>
+                  <span className="rc-name">{s.name}</span>
+                  <span className="expiry-badge" style={{ color: "#f0883e", borderColor: "#f0883e" }}>{label}</span>
+                </div>
               </a>
             );
           })}
