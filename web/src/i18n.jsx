@@ -191,6 +191,9 @@ const STRINGS = {
     "expiry.purchaseCleared": "Purchase date cleared",
     "expiry.saveFailed": "Save failed",
 
+    // expiry alert
+    "expiry.alert.title": "Expiring soon",
+
     // login
     "login.placeholder": "Enter password",
     "login.submit": "Login",
@@ -350,6 +353,9 @@ const STRINGS = {
     "expiry.purchaseSaved": "购买时间已保存",
     "expiry.purchaseCleared": "购买时间已清除",
     "expiry.saveFailed": "保存失败",
+
+    // expiry alert
+    "expiry.alert.title": "即将到期",
 
     // login
     "login.placeholder": "输入密码",

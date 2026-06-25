@@ -512,7 +512,7 @@ function ExpiryBoard({ s, onExpiryChange, onPurchaseDateChange }) {
   const todayStr = now.toISOString().slice(0, 10);
 
   // build day cells
-  // Colors: red = before today, green = today, yellow = tomorrow → expiry, grey = after expiry
+  // Colors: red = before today, green = today and all future, orange = expiry date only
   const cells = [];
   for (let i = 0; i < totalDays; i++) {
     const d = new Date(startRef.getTime() + i * 86400000);
@@ -520,12 +520,10 @@ function ExpiryBoard({ s, onExpiryChange, onPurchaseDateChange }) {
     let cls;
     if (ts < now.getTime()) {
       cls = "eb-red";        // past
-    } else if (ts === now.getTime()) {
-      cls = "eb-green";      // today
-    } else if (exp && ts <= exp.getTime()) {
-      cls = "eb-yellow";     // remaining until expiry
+    } else if (exp && ts === exp.getTime()) {
+      cls = "eb-orange";     // expiry date
     } else {
-      cls = "eb-grey";       // after expiry
+      cls = "eb-green";      // today and all future
     }
     cells.push(<span key={i} className={"eb-cell " + cls} title={d.toLocaleDateString()} />);
   }
@@ -582,8 +580,7 @@ function ExpiryBoard({ s, onExpiryChange, onPurchaseDateChange }) {
         <div className="eb-legend">
           <span className="eb-cell eb-red" /><span>已过</span>
           <span className="eb-cell eb-green" /><span>今天</span>
-          <span className="eb-cell eb-yellow" /><span>剩余</span>
-          <span className="eb-cell eb-grey" /><span>过期</span>
+          <span className="eb-cell eb-orange" /><span>到期</span>
         </div>
         <div className="eb-grid">{cells}</div>
         <div className="eb-bar"><div className="eb-bar-fill" style={{ width: pct + "%" }} /></div>

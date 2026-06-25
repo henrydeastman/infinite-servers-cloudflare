@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./fonts.js";
 import "./styles/dashboard.css";
 import logo from "./assets/logo.png";
-import { fetchInfo, subscribeStatus, buildServers, isLoggedIn, login, logout } from "./api.js";
+import { API_BASE, fetchInfo, subscribeStatus, buildServers, isLoggedIn, login, logout } from "./api.js";
 import { I18nProvider, useI18n } from "./i18n.jsx";
 import { AppBar, SiteFooter } from "./chrome.jsx";
 
@@ -270,6 +270,66 @@ function Summary({ servers }) {
   );
 }
 
+/* ---------- expiry alert panel ---------- */
+function ExpiryAlert({ servers }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(true);
+  const expiring = useMemo(() => {
+    if (!servers) return [];
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return servers
+      .filter((s) => {
+        if (!s.expiry) return false;
+        const exp = new Date(s.expiry + "T00:00:00");
+        const diffDays = Math.round((exp.getTime() - now.getTime()) / 86400000);
+        return diffDays <= 7;
+      })
+      .sort((a, b) => (a.expiry || "").localeCompare(b.expiry || ""));
+  }, [servers]);
+
+  if (expiring.length === 0) return null;
+
+  return (
+    <div className="expiry-alert">
+      <button className="expiry-alert-head" onClick={() => setOpen((o) => !o)}>
+        <span className="expiry-alert-title">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          {t("expiry.alert.title") || "即将到期"}<span className="expiry-alert-count">{expiring.length}</span>
+        </span>
+        <span className={"expiry-alert-chevron" + (open ? " open" : "")}>&#9662;</span>
+      </button>
+      {open && (
+        <div className="expiry-alert-list">
+          {expiring.map((s, i) => {
+            const now2 = new Date(); now2.setHours(0, 0, 0, 0);
+            const exp = new Date(s.expiry + "T00:00:00");
+            const diffDays = Math.round((exp.getTime() - now2.getTime()) / 86400000);
+            const expired = diffDays < 0;
+            const color = expired ? "var(--down)" : diffDays <= 1 ? "#f0883e" : "#e2b714";
+            const label = expired
+              ? (t("expiry.expired", { n: Math.abs(diffDays) }) || `已过期${Math.abs(diffDays)}天`)
+              : diffDays === 0
+                ? (t("expiry.today") || "今天到期")
+                : (t("expiry.daysLeft", { n: diffDays }) || `还有${diffDays}天到期`);
+            return (
+              <a key={s.name} className="expiry-alert-item" href={detailHref(s.name)}>
+                <span className="dot" style={{ background: STATUS[s.status]?.color || "var(--faint)" }} />
+                <span className="flag">{s.flag}</span>
+                <span className="expiry-alert-name">{s.name}</span>
+                <span className="expiry-alert-exp" style={{ color }}>{label}</span>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function usePref(key, def) {
   const [v, setV] = useState(() => {
     try { const s = localStorage.getItem(key); return s === null ? def : JSON.parse(s); }
@@ -315,6 +375,22 @@ function LoginForm({ onLogin }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [doodle, setDoodle] = useState(null);
+
+  useEffect(() => {
+    let abort = false;
+    (async () => {
+      try {
+        const r = await fetch(API_BASE + "doodle", { signal: AbortSignal.timeout(5000) });
+        const data = await r.json();
+        if (!abort && data && data.length) {
+          const d = data[Math.floor(Math.random() * data.length)];
+          if (d.url) setDoodle("https://www.google.com/logos/doodles/" + d.url);
+        }
+      } catch (e) { /* silently fail */ }
+    })();
+    return () => { abort = true; };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -332,6 +408,7 @@ function LoginForm({ onLogin }) {
   return (
     <div className="login-wrap">
       <div className="login-box">
+        {doodle && <img src={doodle} alt="Google Doodle" className="login-doodle" />}
         <img src={logo} alt="Infinite Servers" className="login-logo" />
         <h1>Infinite<strong>Servers</strong></h1>
         <form onSubmit={handleSubmit}>
@@ -487,6 +564,8 @@ function App() {
             )}
           </div>
         )}
+
+        <ExpiryAlert servers={servers} />
 
         <section className="grid" key={filter + "|" + density + "|" + activeTags.join(",")}>
           {shown.map((s, i) => (

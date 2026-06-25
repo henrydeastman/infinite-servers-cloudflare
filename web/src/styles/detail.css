@@ -248,6 +248,7 @@
 }
 .eb-red { background: #e74c3c; opacity: 0.85; }
 .eb-green { background: #27ae60; }
+.eb-orange { background: #f0883e; }
 .eb-yellow { background: #f39c12; }
 .eb-grey { background: var(--border); opacity: 0.4; }
 .eb-bar {

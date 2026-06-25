@@ -9,7 +9,7 @@
      GET ./availability?server=&days=  → daily uptime + incidents
    ============================================================ */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "./";
+export const API_BASE = import.meta.env.VITE_API_BASE || "./";
 const STALE_MS = 120 * 1000; // a node is "offline" if its last sample is older than this
 const DEGRADED_AT = 90; // % usage on any core metric flips an online node to "degraded"
 
