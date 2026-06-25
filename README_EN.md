@@ -325,15 +325,38 @@ npx wrangler pages deploy dist --project-name=infinite-servers-dashboard
 
 ## Agent Deployment
 
-Run on each monitored server:
+One-line install on each monitored server:
 
 ```bash
-sudo ./scripts/deploy-agent.sh
+curl -fsSL https://raw.githubusercontent.com/zhojielun/infinite-servers-cloudflare/master/scripts/install-agent.sh | sudo bash
+```
 
-# Enter when prompted:
-# - Server name
-# - Dashboard URL (Worker URL)
-# - Token (auth token)
+Follow the prompts:
+- **Server name** — must match the name configured in Dashboard
+- **Dashboard URL** — Worker URL, e.g. `https://infinite-servers.xxx.workers.dev`
+- **Token** — auth token (leave blank to auto-generate)
+- **Push interval** — reporting interval in seconds (default 15)
+
+Or skip prompts with environment variables:
+
+```bash
+sudo AGENT_NAME="My Server" \
+     DASHBOARD_URL="https://infinite-servers.xxx.workers.dev" \
+     AGENT_TOKEN="your-token" \
+     AGENT_INTERVAL=15 \
+     curl -fsSL https://raw.githubusercontent.com/zhojielun/infinite-servers-cloudflare/master/scripts/install-agent.sh | bash
+```
+
+After installation:
+- Agent runs as a systemd service named `infinite-agent-{server-name}`
+- Automatically collects CPU, memory, disk, network, load metrics and reports to Dashboard
+
+Manage the service:
+
+```bash
+sudo systemctl status infinite-agent-MyServer    # check status
+sudo systemctl restart infinite-agent-MyServer   # restart
+sudo journalctl -u infinite-agent-MyServer -f    # follow logs
 ```
 
 ---

@@ -79,7 +79,8 @@ worker/src/
 
 scripts/
   migrate-to-d1.sql       — D1 schema (server_info, server_status, history, login_logs, ip_bans)
-  deploy-agent.sh         — installs PHP agent on monitored servers
+  install-agent.sh        — standalone agent installer (curl | bash)
+  deploy-agent.sh         — wrapper that calls install-agent.sh
 ```
 
 ## Deployment resources

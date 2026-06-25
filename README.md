@@ -328,15 +328,38 @@ npx wrangler pages deploy dist --project-name=infinite-servers-dashboard
 
 ## Agent 部署
 
-在被监控服务器上运行：
+在被监控服务器上一键安装：
 
 ```bash
-sudo ./scripts/deploy-agent.sh
+curl -fsSL https://raw.githubusercontent.com/zhojielun/infinite-servers-cloudflare/master/scripts/install-agent.sh | sudo bash
+```
 
-# 按提示输入：
-# - Server name（服务器名称）
-# - Dashboard URL（Worker URL）
-# - Token（认证令牌）
+按提示输入：
+- **Server name** — 服务器名称（必须与 Dashboard 中配置的一致）
+- **Dashboard URL** — Worker 地址，如 `https://infinite-servers.xxx.workers.dev`
+- **Token** — 认证令牌（留空自动生成）
+- **Push interval** — 上报间隔，单位秒（默认 15）
+
+也可以通过环境变量跳过交互：
+
+```bash
+sudo AGENT_NAME="My Server" \
+     DASHBOARD_URL="https://infinite-servers.xxx.workers.dev" \
+     AGENT_TOKEN="your-token" \
+     AGENT_INTERVAL=15 \
+     curl -fsSL https://raw.githubusercontent.com/zhojielun/infinite-servers-cloudflare/master/scripts/install-agent.sh | bash
+```
+
+安装完成后：
+- Agent 以 systemd 服务运行，服务名为 `infinite-agent-{server-name}`
+- 自动采集 CPU、内存、磁盘、网络、负载等信息并上报
+
+管理命令：
+
+```bash
+sudo systemctl status infinite-agent-MyServer    # 查看状态
+sudo systemctl restart infinite-agent-MyServer   # 重启
+sudo journalctl -u infinite-agent-MyServer -f    # 查看日志
 ```
 
 ---
