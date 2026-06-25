@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Infinite Servers | Login</title>
+<link rel="icon" href="/dist/assets/favicon.ico" />
+<script>
+  try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem("is.dark")) === false ? "light" : "dark"; }
+  catch (e) { document.documentElement.dataset.theme = "light"; }
+</script>
+<link rel="stylesheet" href="/dist/assets/chrome-VUxKKqY5.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--boot-bg, #16181c); }
+  .app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, var(--bg-grad), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  .login-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-card {
+    width: 380px;
+    max-width: 90vw;
+    text-align: center;
+    background: color-mix(in oklch, var(--surface) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 32px 32px;
+    box-shadow: 0 8px 32px oklch(0 0 0 / 0.12);
+  }
+  .doodle-container {
+    margin-bottom: 20px;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .doodle-container img {
+    max-height: 120px;
+    max-width: 400px;
+    border-radius: 12px;
+  }
+  .login-logo {
+    margin-bottom: 20px;
+  }
+  .login-logo img {
+    height: 52px;
+    opacity: 0.9;
+  }
+  .login-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .login-sub {
+    font-size: 14px;
+    color: var(--faint);
+    margin-bottom: 28px;
+  }
+  .login-form {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .login-input {
+    flex: 1;
+    max-width: 220px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-input::placeholder { color: var(--faint); }
+  .login-btn {
+    height: 38px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .login-btn:hover { opacity: 0.85; }
+  .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error {
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--accent);
+    min-height: 18px;
+  }
+  .site-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 18px 16px;
+    font-size: 12px;
+    color: var(--faint);
+    flex-wrap: wrap;
+  }
+  .site-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid color-mix(in oklch, var(--accent), transparent 65%);
+    transition: border-color 0.16s;
+  }
+  .site-footer a:hover { border-bottom-color: var(--accent); }
+  .foot-love { display: inline-flex; align-items: center; gap: 7px; color: var(--dim); }
+  .foot-heart { color: var(--accent); }
+  .foot-heart-link { display: inline-flex; line-height: 0; transition: transform 0.16s; }
+  .foot-heart-link:hover { transform: scale(1.18); }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="doodle-container" id="doodleContainer"></div>
+        <div class="login-logo">
+          <img src="/dist/assets/logo-xWp1c5sH.png" alt="Infinite Servers" />
+        </div>
+        <div class="login-title">Infinite Servers</div>
+        <div class="login-sub">输入密码以访问仪表盘</div>
+        <form class="login-form" id="loginForm">
+          <input class="login-input" type="password" id="pw" placeholder="密码" autofocus autocomplete="current-password" />
+          <button class="login-btn" type="submit" id="loginBtn">确认</button>
+        </form>
+        <div class="login-error" id="loginError"></div>
+      </div>
+    </div>
+    <footer class="site-footer">
+      <span class="foot-copy">Copyright&copy; 2026 <a class="foot-link" href="https://github.com/zhojielun" target="_blank" rel="noopener noreferrer">zhojielun</a>. 版权所有。</span>
+      <span class="foot-love">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18l-6-6 6-6M16 6l6 6-6 6"></path></svg>
+        with <a class="foot-heart-link" href="https://github.com/zhojielun/infinite-servers" target="_blank" rel="noopener noreferrer" title="在 GitHub 查看源码"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="foot-heart"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.4 1.9 5 5.2 5c2 0 3.4 1.2 4.3 2.4C10.4 6.2 11.8 5 13.8 5 17.1 5 18.6 8.4 17 11.7 14.5 16.3 12 21 12 21z"></path></svg></a>
+      </span>
+    </footer>
+  </div>
+  <script>
+    // Theme sync - read from localStorage or default to light
+    (function() {
+      var theme = "light";
+      try { theme = JSON.parse(localStorage.getItem("is.dark")) === true ? "dark" : "light"; } catch(e) {}
+      document.documentElement.dataset.theme = theme;
+      document.querySelector(".app").dataset.theme = theme;
+    })();
+
+    // Fetch random Google Doodle via PHP proxy
+    async function loadDoodle() {
+      const container = document.getElementById("doodleContainer");
+      try {
+        const r = await fetch("/doodle", { signal: AbortSignal.timeout(5000) });
+        const doodles = await r.json();
+        if (!doodles || !doodles.length) return;
+        const d = doodles[Math.floor(Math.random() * doodles.length)];
+        if (d.url) {
+          const imgUrl = "https://www.google.com/logos/doodles/" + d.url;
+          container.innerHTML = '<img src="' + imgUrl + '" alt="' + (d.title || "Google Doodle") + '" />';
+        }
+      } catch(e) { /* silently fail */ }
+    }
+    loadDoodle();
+
+    // Login form
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const pw = document.getElementById("pw").value;
+      const btn = document.getElementById("loginBtn");
+      const err = document.getElementById("loginError");
+      if (!pw) { err.textContent = "请输入密码"; return; }
+      btn.disabled = true;
+      btn.textContent = "…";
+      err.textContent = "";
+      try {
+        const r = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "password=" + encodeURIComponent(pw)
+        });
+        if (r.ok) {
+          location.href = "/";
+        } else {
+          const d = await r.json().catch(() => ({}));
+          err.textContent = d.error || "密码错误";
+        }
+      } catch (ex) {
+        err.textContent = "连接失败";
+      }
+      btn.disabled = false;
+      btn.textContent = "确认";
+    });
+  </script>
+</body>
+</html>

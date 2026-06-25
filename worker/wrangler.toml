@@ -1,0 +1,28 @@
+name = "infinite-servers"
+main = "src/index.ts"
+compatibility_date = "2024-06-20"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+SSE_ENABLED = "false"
+INTERVAL = "5"
+HISTORY_DAYS = "30"
+HISTORY_INTERVAL = "5"
+
+# Resource bindings (D1, KV) are managed via Cloudflare Dashboard.
+# When deploying via Workers Builds (GitHub integration), bindings
+# configured in the Dashboard are injected automatically.
+# For local development, create your own resources and add them here:
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "infinite-servers-db"
+# database_id = "<your-database-id>"
+#
+# [[kv_namespaces]]
+# binding = "CONFIG"
+# id = "<your-kv-namespace-id>"
+# preview_id = "<your-kv-namespace-id>"
+
+[triggers]
+crons = ["0 0 * * *"]

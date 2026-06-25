@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Infinite Servers | Powered by Infinite Script</title>
+<link rel="icon" href="./src/assets/favicon.ico" />
+<script>
+  try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem("is.dark")) === true ? "dark" : "light"; }
+  catch (e) { document.documentElement.dataset.theme = "light"; }
+</script>
+<!-- Fonts are self-hosted via @fontsource (bundled by Vite) — see web/src/fonts.js -->
+<script type="application/json" id="is-config">%CONFIG_JSON%</script>
+</head>
+<body>
+<div id="root">
+  <div class="boot">
+    <div class="boot-logo"><img src="./src/assets/logo.png" alt="Infinite Servers" /></div>
+    <div class="boot-ring"></div>
+    <div class="boot-text">Loading node…</div>
+  </div>
+</div>
+<script type="module" src="./src/detail.jsx"></script>
+</body>
+</html>

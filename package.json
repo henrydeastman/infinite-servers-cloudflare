@@ -1,0 +1,24 @@
+{
+  "name": "infinite-servers-cloudflare",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Server fleet monitor - Cloudflare Edition",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy:worker": "cd worker && npx wrangler deploy",
+    "deploy:pages": "npx wrangler pages deploy dist --project-name=infinite-servers-dashboard"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
+  }
+}
