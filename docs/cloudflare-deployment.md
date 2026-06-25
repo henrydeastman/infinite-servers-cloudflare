@@ -119,7 +119,7 @@ https://infinite-servers.<your-subdomain>.workers.dev
 ```bash
 cd web
 npm ci
-npm run build
+VITE_API_BASE="https://your-worker.workers.dev/" VITE_ASSET_BASE=/ npm run build
 npx wrangler pages deploy dist --project-name=infinite-server-web
 ```
 

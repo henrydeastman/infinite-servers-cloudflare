@@ -206,7 +206,7 @@ Worker detail page → **Settings** → **Triggers** → **Cron Triggers** → a
 1. **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**
 2. Build settings:
    - Project name: `infinite-servers-dashboard`
-   - Build command: `npm ci && npm run build`
+   - Build command: `npm ci && VITE_ASSET_BASE=/ npm run build`
    - Build output directory: `dist`
    - Root directory: `/`
 3. Environment variable: `VITE_API_BASE` = `https://infinite-servers.your-subdomain.workers.dev/`
@@ -215,7 +215,7 @@ Worker detail page → **Settings** → **Triggers** → **Cron Triggers** → a
 
 ```bash
 npm ci
-VITE_API_BASE="https://infinite-servers.your-subdomain.workers.dev/" npm run build
+VITE_API_BASE="https://infinite-servers.your-subdomain.workers.dev/" VITE_ASSET_BASE=/ npm run build
 ```
 Then in Dashboard → Pages → **Upload assets** → upload the `dist/` directory.
 
@@ -317,7 +317,7 @@ npx wrangler deploy
 
 ```bash
 cd ..
-VITE_API_BASE="https://your-worker.workers.dev/" npm run build
+VITE_API_BASE="https://your-worker.workers.dev/" VITE_ASSET_BASE=/ npm run build
 npx wrangler pages deploy dist --project-name=infinite-servers-dashboard
 ```
 

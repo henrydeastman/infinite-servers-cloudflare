@@ -322,7 +322,7 @@ npx wrangler deploy --dry-run --outdir=../worker-dist
 6. 配置构建设置：
    - **项目名称**：`infinite-servers-dashboard`
    - **生产分支**：`main`（或你的主分支）
-   - **构建命令**：`npm ci && npm run build`
+   - **构建命令**：`npm ci && VITE_ASSET_BASE=/ npm run build`
    - **构建输出目录**：`dist`
    - **根目录**：`/`
 7. 添加环境变量：
@@ -343,7 +343,7 @@ npx wrangler deploy --dry-run --outdir=../worker-dist
 npm ci
 
 # 构建前端（替换为你的 Worker URL）
-VITE_API_BASE="https://infinite-servers.your-subdomain.workers.dev/" npm run build
+VITE_API_BASE="https://infinite-servers.your-subdomain.workers.dev/" VITE_ASSET_BASE=/ npm run build
 ```
 
 #### 10.2 上传到 Pages
