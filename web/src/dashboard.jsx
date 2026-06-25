@@ -300,7 +300,6 @@ function ExpiryAlert({ servers }) {
           </svg>
           {t("expiry.alert.title") || "即将到期"}<span className="expiry-alert-count">{expiring.length}</span>
         </span>
-        <span className={"expiry-alert-chevron" + (open ? " open" : "")}>&#9662;</span>
       </button>
       {open && (
         <div className="expiry-alert-list">
