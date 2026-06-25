@@ -373,8 +373,11 @@ sudo journalctl -u infinite-agent-MyServer -f    # 查看日志
 | `config.json` | 全局配置（密码、间隔、Telegram 等） |
 | `servers.json` | 服务器列表（名称、Token、地区等） |
 | `worker_geo` | Worker 出口 IP 归属地（自动更新） |
+| `auth_tokens` | 登录 token 存储（自动管理，7 天过期） |
 
-### config.json 示例
+---
+
+### config.json 完整参数
 
 ```json
 {
@@ -384,14 +387,27 @@ sudo journalctl -u infinite-agent-MyServer -f    # 查看日志
   "history-interval": 5,
   "history-days": 30,
   "telegram": {
-    "enabled": true,
-    "bot_token": "your-bot-token",
-    "chat_id": "your-chat-id"
+    "enabled": false,
+    "bot_token": "",
+    "chat_id": ""
   }
 }
 ```
 
-### servers.json 示例
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `password` | string | 否 | 无（无密码时跳过认证） | 仪表盘登录密码。支持明文或 `salt:sha256hex` 格式 |
+| `sse` | boolean | 否 | `false` | 是否启用 Server-Sent Events 实时推送（实验性） |
+| `interval` | number | 否 | `5` | 前端轮询状态的间隔（秒） |
+| `history-interval` | number | 否 | `5` | 历史数据写入间隔（分钟），Agent 每次上报都会写入一条历史记录 |
+| `history-days` | number | 否 | `30` | 历史数据保留天数，超过此天数的记录会被 cron 任务自动清理 |
+| `telegram.enabled` | boolean | 否 | `false` | 是否启用 Telegram 到期提醒 |
+| `telegram.bot_token` | string | 否 | `""` | Telegram Bot Token（从 @BotFather 获取） |
+| `telegram.chat_id` | string | 否 | `""` | Telegram Chat ID（接收提醒的群组或用户） |
+
+---
+
+### servers.json 完整参数
 
 ```json
 {
@@ -399,12 +415,34 @@ sudo journalctl -u infinite-agent-MyServer -f    # 查看日志
     "My Server": {
       "region": "CN",
       "location": "Beijing",
-      "tags": ["Production"],
-      "token": "unique-token-here"
+      "tags": ["Production", "GPU"],
+      "token": "unique-token-here",
+      "url": "",
+      "ip_mask": "x.x.*.*",
+      "expiry": "2026-12-31",
+      "purchase_date": "2026-01-01"
     }
   }
 }
 ```
+
+**顶层结构**：`servers` 是一个对象，key 为服务器名称（支持空格），value 为该服务器的配置。
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `token` | string | **是** | — | Agent 推送认证令牌。安装 Agent 时自动生成，需与 Agent 配置一致 |
+| `region` | string | 否 | `""` | 国家/地区代码，用于显示国旗 emoji（如 `CN`、`US`、`JP`） |
+| `location` | string | 否 | `""` | 服务器物理位置名称（如 `Beijing`、`Tokyo`），优先于 region 显示 |
+| `tags` | string[] | 否 | `[]` | 标签数组，用于前端筛选分组（如 `["Production", "GPU"]`） |
+| `url` | string | 否 | `""` | 服务器 Agent 的回调 URL。如果配置了此字段，Worker 会主动拉取服务器信息（需要服务器运行 HTTP 服务） |
+| `ip_mask` | string | 否 | `""` | IP 地址遮罩，用 `*` 隐藏 octet。例如 `x.x.*.*` 会将 `1.2.3.4` 显示为 `1.2.*.*` |
+| `expiry` | string | 否 | `""` | 到期日期，格式 `YYYY-MM-DD`。到期前 7 天会在 Dashboard 显示提醒 |
+| `purchase_date` | string | 否 | `""` | 购买日期，格式 `YYYY-MM-DD`。用于计算服务进度条的起始位置 |
+
+**服务器名称规则**：
+- 支持字母、数字、空格、下划线、连字符
+- 必须与 Agent 安装时填写的名称完全一致
+- 通过 Agent 推送时，名称会自动 URL 编码（如 `My Server` → `My%20Server`）
 
 ---
 

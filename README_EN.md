@@ -370,8 +370,11 @@ sudo journalctl -u infinite-agent-MyServer -f    # follow logs
 | `config.json` | Global config (password, interval, Telegram, etc.) |
 | `servers.json` | Server list (name, token, region, etc.) |
 | `worker_geo` | Worker exit IP geolocation (auto-updated) |
+| `auth_tokens` | Login token storage (auto-managed, 7-day expiry) |
 
-### config.json Example
+---
+
+### config.json — Full Reference
 
 ```json
 {
@@ -381,14 +384,27 @@ sudo journalctl -u infinite-agent-MyServer -f    # follow logs
   "history-interval": 5,
   "history-days": 30,
   "telegram": {
-    "enabled": true,
-    "bot_token": "your-bot-token",
-    "chat_id": "your-chat-id"
+    "enabled": false,
+    "bot_token": "",
+    "chat_id": ""
   }
 }
 ```
 
-### servers.json Example
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `password` | string | No | none (auth skipped if unset) | Dashboard login password. Supports plaintext or `salt:sha256hex` format |
+| `sse` | boolean | No | `false` | Enable Server-Sent Events for real-time push (experimental) |
+| `interval` | number | No | `5` | Frontend polling interval for status updates (seconds) |
+| `history-interval` | number | No | `5` | History write interval (minutes). Each agent report creates one history row |
+| `history-days` | number | No | `30` | History retention days. Records older than this are cleaned by the daily cron |
+| `telegram.enabled` | boolean | No | `false` | Enable Telegram expiry reminders |
+| `telegram.bot_token` | string | No | `""` | Telegram Bot Token (from @BotFather) |
+| `telegram.chat_id` | string | No | `""` | Telegram Chat ID (user or group to receive reminders) |
+
+---
+
+### servers.json — Full Reference
 
 ```json
 {
@@ -396,12 +412,34 @@ sudo journalctl -u infinite-agent-MyServer -f    # follow logs
     "My Server": {
       "region": "US",
       "location": "New York",
-      "tags": ["Production"],
-      "token": "unique-token-here"
+      "tags": ["Production", "GPU"],
+      "token": "unique-token-here",
+      "url": "",
+      "ip_mask": "x.x.*.*",
+      "expiry": "2026-12-31",
+      "purchase_date": "2026-01-01"
     }
   }
 }
 ```
+
+**Top-level structure**: `servers` is an object where keys are server names (spaces allowed) and values are per-server configs.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `token` | string | **Yes** | — | Agent push auth token. Auto-generated during Agent install, must match the Agent config |
+| `region` | string | No | `""` | Country/region code for flag emoji display (e.g. `US`, `CN`, `JP`) |
+| `location` | string | No | `""` | Physical location name (e.g. `New York`, `Tokyo`). Displayed instead of region code |
+| `tags` | string[] | No | `[]` | Tag array for frontend filtering/grouping (e.g. `["Production", "GPU"]`) |
+| `url` | string | No | `""` | Agent callback URL. If set, Worker actively pulls server info (requires HTTP service on the server) |
+| `ip_mask` | string | No | `""` | IP address mask using `*` to hide octets. E.g. `x.x.*.*` shows `1.2.3.4` as `1.2.*.*` |
+| `expiry` | string | No | `""` | Expiry date in `YYYY-MM-DD` format. Shows reminder on Dashboard 7 days before expiry |
+| `purchase_date` | string | No | `""` | Purchase date in `YYYY-MM-DD` format. Used as the starting point for the service progress bar |
+
+**Server name rules**:
+- Supports letters, numbers, spaces, underscores, hyphens
+- Must exactly match the name entered during Agent installation
+- Agent automatically URL-encodes the name when pushing (e.g. `My Server` → `My%20Server`)
 
 ---
 

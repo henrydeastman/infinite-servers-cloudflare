@@ -10,6 +10,7 @@ import { AreaChart, Sparkline, UptimeStrip } from "./charts.jsx";
 import { fetchInfo, subscribeStatus, buildServers, fetchHistory, toSeries, fetchAvailability, setExpiry, setPurchaseDate } from "./api.js";
 import { I18nProvider, useI18n } from "./i18n.jsx";
 import { AppBar, SiteFooter } from "./chrome.jsx";
+import ErrorBoundary from "./ErrorBoundary.jsx";
 
 /* ---------- icons ---------- */
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
@@ -673,5 +674,5 @@ function App() {
 }
 
 createRoot(document.getElementById("root")).render(
-  <I18nProvider><App /></I18nProvider>
+  <ErrorBoundary><I18nProvider><App /></I18nProvider></ErrorBoundary>
 );

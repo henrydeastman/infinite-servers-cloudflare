@@ -6,6 +6,7 @@ import logo from "./assets/logo.png";
 import { API_BASE, fetchInfo, subscribeStatus, buildServers, isLoggedIn, login } from "./api.js";
 import { I18nProvider, useI18n } from "./i18n.jsx";
 import { AppBar, SiteFooter } from "./chrome.jsx";
+import ErrorBoundary from "./ErrorBoundary.jsx";
 
 /* ---------- tiny inline icons (simple shapes only) ---------- */
 const Icon = {
@@ -584,5 +585,5 @@ function App() {
 }
 
 createRoot(document.getElementById("root")).render(
-  <I18nProvider><App /></I18nProvider>
+  <ErrorBoundary><I18nProvider><App /></I18nProvider></ErrorBoundary>
 );
