@@ -9,10 +9,9 @@ INTERVAL = "5"
 HISTORY_DAYS = "30"
 HISTORY_INTERVAL = "5"
 
-# Resource bindings (D1, KV) are managed via Cloudflare Dashboard.
-# When deploying via Workers Builds (GitHub integration), bindings
-# configured in the Dashboard are injected automatically.
-# For local development, create your own resources and add them here:
+# Resource bindings (D1, KV) — configured via Cloudflare Dashboard.
+# Workers Builds (GitHub integration) injects Dashboard bindings automatically.
+# For local dev, uncomment and fill in your own IDs:
 #
 # [[d1_databases]]
 # binding = "DB"

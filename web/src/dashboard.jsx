@@ -273,7 +273,7 @@ function Summary({ servers }) {
 /* ---------- expiry alert panel ---------- */
 function ExpiryAlert({ servers }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const expiring = useMemo(() => {
     if (!servers) return [];
     const now = new Date();
@@ -545,6 +545,8 @@ function App() {
           </div>
         </div>
 
+        <ExpiryAlert servers={servers} />
+
         {allTags.length > 0 && (
           <div className="tagbar">
             <span className="tagbar-lead"><Icon.tag /> {t("tags.label")}</span>
@@ -564,8 +566,6 @@ function App() {
             )}
           </div>
         )}
-
-        <ExpiryAlert servers={servers} />
 
         <section className="grid" key={filter + "|" + density + "|" + activeTags.join(",")}>
           {shown.map((s, i) => (
