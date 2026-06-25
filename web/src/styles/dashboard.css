@@ -263,30 +263,31 @@ h1 { font-size: 27px; font-weight: 600; letter-spacing: -0.02em; }
 /* ---------- LOGIN ---------- */
 .login-wrap {
   display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; background: var(--bg);
+  min-height: 100vh; background: var(--boot-bg, #16181c);
 }
 .login-box {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--boot-surface, #2a2d33); border: 1px solid var(--boot-border, rgba(255,255,255,0.14));
   border-radius: 16px; padding: 40px 36px; width: 340px; text-align: center;
   box-shadow: 0 8px 32px oklch(0 0 0 / 0.12);
 }
 .login-logo { width: 56px; height: 56px; margin-bottom: 16px; }
-.login-box h1 { font-size: 22px; margin: 0 0 24px; font-weight: 400; }
+.login-box h1 { font-size: 22px; margin: 0 0 24px; font-weight: 400; color: var(--text, #e8eaed); }
 .login-box h1 strong { font-weight: 700; }
 .login-box input {
   width: 100%; box-sizing: border-box; padding: 12px 14px; font-size: 14px;
-  border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
-  color: var(--text); outline: none; transition: border-color 0.16s;
+  border: 1px solid var(--boot-border, rgba(255,255,255,0.14)); border-radius: 8px;
+  background: var(--boot-bg, #16181c); color: var(--text, #e8eaed);
+  outline: none; transition: border-color 0.16s;
 }
 .login-box input:focus { border-color: var(--accent); }
 .login-box button {
   width: 100%; margin-top: 14px; padding: 11px; font-size: 14px; font-weight: 600;
-  border: none; border-radius: 8px; background: var(--text); color: var(--bg);
+  border: none; border-radius: 8px; background: var(--accent); color: #fff;
   cursor: pointer; transition: opacity 0.16s;
 }
 .login-box button:hover { opacity: 0.85; }
 .login-box button:disabled { opacity: 0.5; cursor: not-allowed; }
-.login-error { color: var(--down); font-size: 13px; margin-top: 10px; }
+.login-error { color: var(--down, #f0883e); font-size: 13px; margin-top: 10px; }
 
 /* ---------- CONNECTION ERROR BANNER ---------- */
 .conn-error {
