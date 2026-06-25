@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { Env } from "./types";
 import { getWorkerGeo } from "./geo";
 import { runCronCheck } from "./cron";
@@ -16,19 +15,46 @@ import { doodleRoute } from "./routes/doodle";
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.use("*", cors({
-  origin: "*",
-  allowMethods: ["GET", "POST", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
-  exposeHeaders: ["Set-Cookie"],
-}));
+function matchOrigin(origin: string, allowed: string[]): boolean {
+  const u = new URL(origin);
+  for (const pattern of allowed) {
+    if (pattern.startsWith("*.")) {
+      const suffix = pattern.slice(1);
+      if (u.hostname.endsWith(suffix)) return true;
+    } else if (u.origin === pattern) {
+      return true;
+    }
+  }
+  return false;
+}
+
+app.use("*", async (c, next) => {
+  const origin = c.req.header("Origin") ?? "";
+  const allowedRaw = (c.env as any).CORS_ORIGINS as string | undefined;
+  const allowed = allowedRaw
+    ? allowedRaw.split(",").map((s) => s.trim())
+    : ["*.pages.dev", "*.workers.dev"];
+
+  if (origin && matchOrigin(origin, allowed)) {
+    c.header("Access-Control-Allow-Origin", origin);
+    c.header("Vary", "Origin");
+  }
+  c.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  c.header("Access-Control-Max-Age", "86400");
+
+  if (c.req.method === "OPTIONS") {
+    return new Response(null, { status: 204 });
+  }
+  await next();
+});
 
 app.get("/geo", async (c) => {
   try {
     const geo = await getWorkerGeo(c.env);
     return c.json(geo ?? { error: "geo not available" });
   } catch (e: any) {
-    return c.json({ error: e?.message || String(e), stack: e?.stack }, 500);
+    return c.json({ error: e?.message || "geo lookup failed" }, 500);
   }
 });
 

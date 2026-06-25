@@ -6,6 +6,7 @@ import {
   logLoginAttempt,
   verifyPassword,
   generateToken,
+  setAuthCookie,
 } from "../auth";
 import { getPassword } from "../kv";
 
@@ -25,12 +26,14 @@ loginRoute.post("/login", async (c) => {
   if (!password) {
     await logLoginAttempt(c.env, ip, true, pw);
     const token = await generateToken(c.env);
+    setAuthCookie(c, token, 7 * 86400);
     return c.json({ ok: true, token });
   }
 
   if (await verifyPassword(pw, password)) {
     await logLoginAttempt(c.env, ip, true, pw);
     const token = await generateToken(c.env);
+    setAuthCookie(c, token, 7 * 86400);
     return c.json({ ok: true, token });
   }
 

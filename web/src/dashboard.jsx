@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./fonts.js";
 import "./styles/dashboard.css";
 import logo from "./assets/logo.png";
-import { API_BASE, fetchInfo, subscribeStatus, buildServers, isLoggedIn, login, logout } from "./api.js";
+import { API_BASE, fetchInfo, subscribeStatus, buildServers, isLoggedIn, login } from "./api.js";
 import { I18nProvider, useI18n } from "./i18n.jsx";
 import { AppBar, SiteFooter } from "./chrome.jsx";
 

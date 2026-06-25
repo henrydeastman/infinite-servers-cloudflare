@@ -147,7 +147,6 @@ export function buildServers(info, statusMap, prevNet, now = Date.now()) {
     out.push({
       name,
       flag: flagEmoji(i.region),
-      ip: s.ip || null,
       region: regionLabel(i),
       regionCode: (i.region || "").toUpperCase(),
       status,
@@ -169,7 +168,7 @@ export function buildServers(info, statusMap, prevNet, now = Date.now()) {
       netDown: online ? fmtRate(down) : "0 B/s",
       tags: Array.isArray(i.tags) ? i.tags : [],
       ip: applyIpMask(s.ip || null, i.ip_mask || null),
-      gpu: online ? gpuModels(s.gpuinfo) : gpuModels(s.gpuinfo) && gpuModels(s.gpuinfo).map((g) => ({ ...g, used: 0 })),
+      gpu: (() => { const g = gpuModels(s.gpuinfo); return g && !online ? g.map((m) => ({ ...m, used: 0 })) : g; })(),
       expiry: i.expiry || null,
       purchase_date: i.purchase_date || null,
     });

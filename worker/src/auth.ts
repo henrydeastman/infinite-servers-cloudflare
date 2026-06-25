@@ -74,27 +74,32 @@ export async function logLoginAttempt(
     .run();
 }
 
+export async function hashPassword(password: string): Promise<string> {
+  const salt = crypto.randomUUID().replace(/-/g, "");
+  const data = new TextEncoder().encode(salt + password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashHex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return salt + ":" + hashHex;
+}
+
 export async function verifyPassword(
   input: string,
   stored: string,
 ): Promise<boolean> {
-  // Plaintext comparison
-  if (input === stored) return true;
+  if (!input) return false;
 
-  // bcrypt hash ($2a$, $2b$, $2y$) — verify via Web Crypto PBKDF2 approximation
-  // For production use, set a plaintext password in KV config instead
-  if (/^\$2[aby]\$/.test(stored)) {
-    // Extract cost, salt from bcrypt hash
-    const parts = stored.split("$");
-    if (parts.length >= 4) {
-      const saltB64 = parts[3].substring(0, 22);
-      // For Workers, compare plaintext if stored password is bcrypt
-      // Users should set plaintext passwords in KV config for Workers deployment
-      return false;
-    }
+  if (stored.includes(":")) {
+    const [salt, expectedHash] = stored.split(":", 2);
+    const data = new TextEncoder().encode(salt + input);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    return hashHex === expectedHash;
   }
 
-  return false;
+  return input === stored;
 }
 
 export async function isAuthenticated(c: Context, env: Env): Promise<boolean> {
@@ -105,23 +110,26 @@ export async function isAuthenticated(c: Context, env: Env): Promise<boolean> {
     return await validateToken(env, token);
   }
 
-  // Fallback: check cookie
+  // Fallback: check cookie — validate against KV like Bearer
   const cookie = c.req.header("Cookie") ?? "";
   const match = cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
-  return match?.[1] === "1";
+  if (!match) return false;
+  const token = match[1];
+  if (token === "1") return false;
+  return await validateToken(env, token);
 }
 
 export async function generateToken(env: Env): Promise<string> {
   const token = crypto.randomUUID();
   const expires = Date.now() + 7 * 86400 * 1000;
-  const tokens = await env.CONFIG.get(TOKEN_STORE_KEY, "json") ?? {};
+  const tokens: Record<string, number> = await env.CONFIG.get(TOKEN_STORE_KEY, "json") ?? {};
   tokens[token] = expires;
   await env.CONFIG.put(TOKEN_STORE_KEY, JSON.stringify(tokens));
   return token;
 }
 
 export async function validateToken(env: Env, token: string): Promise<boolean> {
-  const tokens = await env.CONFIG.get(TOKEN_STORE_KEY, "json") ?? {};
+  const tokens: Record<string, number> = await env.CONFIG.get(TOKEN_STORE_KEY, "json") ?? {};
   const expires = tokens[token];
   if (!expires) return false;
   if (Date.now() > expires) {
@@ -130,6 +138,14 @@ export async function validateToken(env: Env, token: string): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+export async function invalidateToken(env: Env, token: string): Promise<void> {
+  const tokens: Record<string, number> = await env.CONFIG.get(TOKEN_STORE_KEY, "json") ?? {};
+  if (tokens[token] !== undefined) {
+    delete tokens[token];
+    await env.CONFIG.put(TOKEN_STORE_KEY, JSON.stringify(tokens));
+  }
 }
 
 export function setAuthCookie(
