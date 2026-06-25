@@ -238,9 +238,10 @@
 }
 .eb-board { margin-top: 8px; }
 .eb-legend { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--dim); margin-bottom: 8px; flex-wrap: wrap; }
+.eb-legend .eb-cell { width: 12px; height: 12px; flex: none; }
 .eb-grid {
   display: grid;
-  grid-template-columns: repeat(45, 1fr);
+  grid-template-columns: repeat(31, 1fr);
   gap: 2px;
 }
 .eb-cell {
